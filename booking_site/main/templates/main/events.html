@@ -1,0 +1,184 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Мероприятия - EventBook</title>
+    <link rel="stylesheet" href="{% static 'main/css/style.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Шапка -->
+    <header>
+        <div class="container">
+            <nav>
+                <a href="{% url 'home' %}" class="logo">Event<span>Book</span></a>
+                <ul class="nav-links">
+                    <li><a href="{% url 'home' %}">Главная</a></li>
+                    <li><a href="{% url 'events' %}" class="active">Мероприятия</a></li>
+                    <li><a href="{% url 'contacts' %}">Контакты</a></li>
+                    {% if user.is_authenticated %}
+                        <li><a href="{% url 'profile' %}">Профиль</a></li>
+                        <li>
+                            <form action="{% url 'logout' %}" method="post" style="display: inline;">
+                                {% csrf_token %}
+                                <button type="submit" class="btn">Выйти</button>
+                            </form>
+                        </li>
+                    {% else %}
+                        <li><a href="{% url 'login' %}" class="btn">Войти</a></li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Заголовок страницы -->
+    <section class="hero" style="padding: 2.5rem 0; border-radius: 0;">
+        <div class="container">
+            <h1>Все мероприятия</h1>
+            <p>Выберите интересующее вас событие и забронируйте места</p>
+        </div>
+    </section>
+
+    <!-- Фильтры -->
+<section class="section" style="padding-top: 1rem;">
+    <div class="container">
+        <form method="get" action="{% url 'events' %}">
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; margin-bottom: 2rem;">
+                <div>
+                    <h2>Доступные мероприятия</h2>
+                    <p>Найдено {{ events.paginator.count }} мероприятий</p>
+                </div>
+                <div style="display: flex; gap: 1rem;">
+                    <!-- Выпадающий список для возрастных ограничений -->
+                    <select name="age" style="padding: 0.7rem 1rem; border-radius: 6px; border: 1px solid #ddd;">
+                        <option value="">Все категории</option>
+                        {% for restriction in filter.form.age.field.queryset %}
+                            <option value="{{ restriction.pk }}" {% if filter.form.age.value|stringformat:"s" == restriction.pk|stringformat:"s" %}selected{% endif %}>
+                                {{ restriction.restriction }}
+                            </option>
+                        {% endfor %}
+                    </select>
+
+                    <!-- Выпадающий список для городов -->
+                    <select name="city" style="padding: 0.7rem 1rem; border-radius: 6px; border: 1px solid #ddd;">
+                        <option value="">Все города</option>
+                        {% for city in filter.form.city.field.queryset %}
+                            <option value="{{ city.pk }}" {% if filter.form.city.value|stringformat:"s" == city.pk|stringformat:"s" %}selected{% endif %}>
+                                {{ city.cityName }}
+                            </option>
+                        {% endfor %}
+                    </select>
+
+                    <!-- Кнопка применения фильтра -->
+                    <button type="submit" class="btn" style="background-color: var(--primary-color); color: white;">Применить</button>
+
+                    <!-- Ссылка для сброса фильтра -->
+                    <a href="{% url 'events' %}" class="btn" style="background-color: #e9ecef; color: #495057;">Сбросить</a>
+                </div>
+            </div>
+        </form>
+    </div>
+</section>
+
+    <!-- Список мероприятий -->
+    <section class="section" style="padding-top: 0;">
+        <div class="container">
+            <div class="events-grid">
+                {% for event in events %}
+                <div class="event-card">
+                    {% if event.image %}
+                    <img src="{{ event.image.url }}" alt="{{ event.eventName }}" class="event-image">
+                    {% endif %}
+                    <div class="event-content">
+                        <span class="event-category">{{ event.ageRestrictions.restriction }}</span>
+                        <h3 class="event-title">{{ event.eventName }}</h3>
+                        <div class="event-date">
+                            <i class="far fa-calendar"></i>
+                            <span>{{ event.event_date }} {% if event.event_start %}{{ event.event_start }}{% endif %}</span>
+                        </div>
+                        <div class="event-location">
+                            <i class="fas fa-map-marker-alt"></i>
+                            <span>
+                                {% if event.city  %}{{ event.city.cityName  }}{% endif %}
+                                {% if event.adress.street %}, {{ event.adress.street }}{% endif %}
+                                {% if event.adress.home %}, д. {{ event.adress.home }}{% endif %}
+                            </span>
+                        </div>
+                        <div class="event-organizer">
+                            <i class="fas fa-user"></i>
+                            <span>Организатор: {{ event.organisator.idOrganisator.get_full_name }}</span>
+                        </div>
+                        <div class="event-price">{{ event.price }} ₽</div>
+                        <div class="event-actions">
+                            <a href="#" class="btn">Забронировать</a>
+                            <span class="event-seats">Осталось {{ event.participants }} мест</span>
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <div style="text-align: center; width: 100%; padding: 2rem;">
+                    <p>На данный момент мероприятий нет.</p>
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- Пагинация -->
+            {% if events.has_other_pages %}
+            <div style="display: flex; justify-content: center; margin-top: 3rem;">
+                <div style="display: flex; gap: 0.5rem;">
+                    {% if events.has_previous %}
+                    <a href="?page={{ events.previous_page_number }}" class="btn" style="background-color: #e9ecef; color: #495057;">Назад</a>
+                    {% endif %}
+
+                    {% for num in events.paginator.page_range %}
+                        {% if events.number == num %}
+                        <a href="#" class="btn" style="background-color: var(--primary-color); color: white;">{{ num }}</a>
+                        {% else %}
+                        <a href="?page={{ num }}" class="btn" style="background-color: #e9ecef; color: #495057;">{{ num }}</a>
+                        {% endif %}
+                    {% endfor %}
+
+                    {% if events.has_next %}
+                    <a href="?page={{ events.next_page_number }}" class="btn" style="background-color: #e9ecef; color: #495057;">Вперед</a>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </section>
+
+    <!-- Футер -->
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>EventBook</h3>
+                    <p>Платформа для поиска и бронирования билетов на мероприятия любого формата. Мы делаем культурную жизнь доступнее.</p>
+                </div>
+                <div class="footer-section">
+                    <h3>Навигация</h3>
+                    <ul>
+                        <li><a href="{% url 'home' %}">Главная</a></li>
+                        <li><a href="{% url 'events' %}">Мероприятия</a></li>
+                        <li><a href="{% url 'contacts' %}">Контакты</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h3>Контакты</h3>
+                    <ul>
+                        <li><i class="fas fa-phone"></i> +7 (999) 123-45-67</li>
+                        <li><i class="fas fa-envelope"></i> info@eventbook.ru</li>
+                        <li><i class="fas fa-map-marker-alt"></i> Москва, ул. Пушкина, д. 10</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="copyright">
+                <p>&copy; 2024 EventBook. Все права защищены.</p>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>

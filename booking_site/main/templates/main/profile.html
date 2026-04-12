@@ -1,0 +1,140 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Профиль | EventBook</title>
+    <link rel="stylesheet" href="{% static 'main/css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'main/css/profile.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+<header>
+    <div class="container">
+        <nav>
+            <a href="{% url 'home' %}" class="logo">Event<span>Book</span></a>
+            <ul class="nav-links">
+                <li><a href="{% url 'home' %}">Главная</a></li>
+                <li><a href="{% url 'events' %}">Мероприятия</a></li>
+                <li><a href="{% url 'contacts' %}">Контакты</a></li>
+                {% if user.is_authenticated %}
+                    <li><a href="{% url 'profile' %}" class="active">Профиль</a></li>
+                    <li>
+                        <form action="{% url 'logout' %}" method="post" style="display: inline;">
+                            {% csrf_token %}
+                            <button type="submit" class="btn">Выйти</button>
+                        </form>
+                    </li>
+                {% else %}
+                    <li><a href="{% url 'login' %}" class="btn">Войти</a></li>
+                {% endif %}
+            </ul>
+        </nav>
+    </div>
+</header>
+
+<section class="hero" style="padding: 2rem 0; margin-bottom: 2rem;">
+    <div class="container">
+        <h1>Профиль пользователя</h1>
+        <p>Здравствуйте, {{ user.first_name|default:user.username }}!</p>
+    </div>
+</section>
+
+<div class="container section" style="padding-top: 0;">
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <div class="profile-container">
+        <div class="profile-card">
+            <div class="profile-header">
+                <i class="fas fa-user-circle"></i>
+                <h2>Личные данные</h2>
+            </div>
+
+            <form method="post">
+                {% csrf_token %}
+
+                <div class="form-group">
+                    <label for="{{ form.first_name.id_for_label }}">Имя</label>
+                    {{ form.first_name }}
+                    {% if form.first_name.errors %}
+                        <ul class="errorlist">
+                            {% for error in form.first_name.errors %}
+                                <li>{{ error }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    <label for="{{ form.last_name.id_for_label }}">Фамилия</label>
+                    {{ form.last_name }}
+                    {% if form.last_name.errors %}
+                        <ul class="errorlist">
+                            {% for error in form.last_name.errors %}
+                                <li>{{ error }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    <label for="{{ form.email.id_for_label }}">Электронная почта</label>
+                    {{ form.email }}
+                    {% if form.email.errors %}
+                        <ul class="errorlist">
+                            {% for error in form.email.errors %}
+                                <li>{{ error }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+                </div>
+
+                <div class="profile-actions">
+                    <button type="submit" class="btn btn-primary">Сохранить изменения</button>
+                    <a href="{% url 'home' %}" class="btn">На главную</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<footer>
+    <div class="container">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>EventBook</h3>
+                <p>Платформа для поиска и бронирования билетов на мероприятия любого формата.</p>
+            </div>
+            <div class="footer-section">
+                <h3>Навигация</h3>
+                <ul>
+                    <li><a href="{% url 'home' %}">Главная</a></li>
+                    <li><a href="{% url 'events' %}">Мероприятия</a></li>
+                    <li><a href="{% url 'contacts' %}">Контакты</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h3>Контакты</h3>
+                <ul>
+                    <li><i class="fas fa-phone"></i> +7 (999) 123-45-67</li>
+                    <li><i class="fas fa-envelope"></i> info@eventbook.ru</li>
+                    <li><i class="fas fa-map-marker-alt"></i> Москва, ул. Пушкина, д. 10</li>
+                </ul>
+            </div>
+        </div>
+        <div class="copyright">
+            <p>&copy; 2024 EventBook. Все права защищены.</p>
+        </div>
+    </div>
+</footer>
+
+</body>
+</html>

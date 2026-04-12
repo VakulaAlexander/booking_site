@@ -1,0 +1,140 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EventBook - Бронирование мероприятий</title>
+    <link rel="stylesheet" href="{% static 'main/css/style.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Шапка -->
+    <header>
+        <div class="container">
+            <nav>
+                <a href="{% url 'home' %}" class="logo">Event<span>Book</span></a>
+                <ul class="nav-links">
+                    <li><a href="{% url 'home' %}" class="active">Главная</a></li>
+                    <li><a href="{% url 'events' %}">Мероприятия</a></li>
+                    <li><a href="{% url 'contacts' %}">Контакты</a></li>
+
+                    {% if user.is_authenticated %}
+                        <li><a href="{% url 'profile' %}">Профиль</a></li>
+                        <li>
+                            <form action="{% url 'logout' %}" method="post" style="display: inline;">
+                                {% csrf_token %}
+                                <button type="submit" class="btn">Выйти</button>
+                            </form>
+                        </li>
+                    {% else %}
+                        <li><a href="{% url 'login' %}" class="btn">Войти</a></li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Герой секция -->
+    <section class="hero">
+        <div class="container">
+            <h1>Найдите своё идеальное мероприятие</h1>
+            <p>От концертов и фестивалей до конференций и мастер-классов — бронируйте места на лучшие события вашего города</p>
+            <a href="{% url 'events' %}" class="btn">Смотреть мероприятия</a>
+        </div>
+    </section>
+
+    <!-- Особенности -->
+    <section class="section">
+        <div class="container">
+            <h2 class="section-title">Почему выбирают нас</h2>
+            <div class="features">
+                <div class="feature">
+                    <i class="fas fa-check-circle"></i>
+                    <h3>Простая регистрация</h3>
+                    <p>Быстрая регистрация и бронирование за несколько кликов</p>
+                </div>
+                <div class="feature">
+                    <i class="fas fa-ticket-alt"></i>
+                    <h3>Электронные билеты</h3>
+                    <p>Мгновенная доставка билетов на email после оплаты</p>
+                </div>
+                <div class="feature">
+                    <i class="fas fa-shield-alt"></i>
+                    <h3>Безопасная оплата</h3>
+                    <p>Защищенные платежи через проверенные платежные системы</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Как это работает -->
+    <section class="section" style="background-color: #f0f4f8;">
+        <div class="container">
+            <h2 class="section-title">Как это работает</h2>
+            <div class="steps">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <h3>Найдите мероприятие</h3>
+                    <p>Изучите каталог событий в вашем городе</p>
+                </div>
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <h3>Забронируйте место</h3>
+                    <p>Выберите количество билетов и закрепите за собой места</p>
+                </div>
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <h3>Оплатите онлайн</h3>
+                    <p>Безопасная оплата картой или электронными деньгами</p>
+                </div>
+                <div class="step">
+                    <div class="step-number">4</div>
+                    <h3>Получите билеты</h3>
+                    <p>Электронные билеты придут вам на email сразу после оплаты</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Популярные мероприятия -->
+    <section class="section">
+        <div class="container">
+            <div style="text-align: center; margin-top: 2rem;">
+                <a href="{% url 'events' %}" class="btn btn-primary">Все мероприятия</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Футер -->
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>EventBook</h3>
+                    <p>Платформа для поиска и бронирования билетов на мероприятия любого формата. Мы делаем культурную жизнь доступнее.</p>
+                </div>
+                <div class="footer-section">
+                    <h3>Навигация</h3>
+                    <ul>
+                        <li><a href="{% url 'home' %}">Главная</a></li>
+                        <li><a href="{% url 'events' %}">Мероприятия</a></li>
+                        <li><a href="{% url 'contacts' %}">Контакты</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h3>Контакты</h3>
+                    <ul>
+                        <li><i class="fas fa-phone"></i> +7 (999) 123-45-67</li>
+                        <li><i class="fas fa-envelope"></i> info@eventbook.ru</li>
+                        <li><i class="fas fa-map-marker-alt"></i> Москва, ул. Пушкина, д. 10</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="copyright">
+                <p>&copy; 2024 EventBook. Все права защищены.</p>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>

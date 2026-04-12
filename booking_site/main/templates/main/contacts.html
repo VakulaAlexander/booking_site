@@ -1,0 +1,264 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Контакты - EventBook</title>
+    <link rel="stylesheet" href="{% static 'main/css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'main/css/contacts.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Шапка -->
+    <header>
+        <div class="container">
+            <nav>
+                <a href="{% url 'home' %}" class="logo">Event<span>Book</span></a>
+                <ul class="nav-links">
+                    <li><a href="{% url 'home' %}">Главная</a></li>
+                    <li><a href="{% url 'events' %}">Мероприятия</a></li>
+                    <li><a href="{% url 'contacts' %}" class="active">Контакты</a></li>
+                    {% if user.is_authenticated %}
+                        <li><a href="{% url 'profile' %}">Профиль</a></li>
+                        <li>
+                            <form action="{% url 'logout' %}" method="post" style="display: inline;">
+                                {% csrf_token %}
+                                <button type="submit" class="btn">Выйти</button>
+                            </form>
+                        </li>
+                    {% else %}
+                        <li><a href="{% url 'login' %}" class="btn">Войти</a></li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Герой секция -->
+    <section class="hero contact-hero">
+        <div class="container">
+            <h1>Свяжитесь с нами</h1>
+            <p>Мы всегда рады помочь вам с вопросами о мероприятиях, бронировании или сотрудничестве</p>
+        </div>
+    </section>
+
+    <!-- Контактная информация -->
+    <section class="section">
+        <div class="container">
+            <div class="contact-container">
+                <div class="contact-info">
+                    <h2 class="section-title">Наши контакты</h2>
+                    <div class="contact-items">
+                        <div class="contact-item">
+                            <div class="contact-icon">
+                                <i class="fas fa-map-marker-alt"></i>
+                            </div>
+                            <div class="contact-details">
+                                <h3>Адрес</h3>
+                                <p>Москва, ул. Пушкина, д. 10, офис 305</p>
+                                <p class="contact-note">Ближайшая станция метро: Тверская</p>
+                            </div>
+                        </div>
+
+                        <div class="contact-item">
+                            <div class="contact-icon">
+                                <i class="fas fa-phone"></i>
+                            </div>
+                            <div class="contact-details">
+                                <h3>Телефон</h3>
+                                <p>+7 (999) 123-45-67</p>
+                                <p class="contact-note">Пн-Пт: 9:00-18:00, Сб: 10:00-16:00</p>
+                            </div>
+                        </div>
+
+                        <div class="contact-item">
+                            <div class="contact-icon">
+                                <i class="fas fa-envelope"></i>
+                            </div>
+                            <div class="contact-details">
+                                <h3>Email</h3>
+                                <p>info@eventbook.ru</p>
+                                <p class="contact-note">Ответ в течение 24 часов</p>
+                            </div>
+                        </div>
+
+                        <div class="contact-item">
+                            <div class="contact-icon">
+                                <i class="fas fa-clock"></i>
+                            </div>
+                            <div class="contact-details">
+                                <h3>Часы работы</h3>
+                                <p>Понедельник - Пятница: 9:00 - 18:00</p>
+                                <p>Суббота: 10:00 - 16:00</p>
+                                <p>Воскресенье: выходной</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="social-links">
+                        <h3>Мы в соцсетях</h3>
+                        <div class="social-icons">
+                            <a href="#" class="social-icon">
+                                <i class="fab fa-vk"></i>
+                            </a>
+                            <a href="#" class="social-icon">
+                                <i class="fab fa-telegram"></i>
+                            </a>
+                            <a href="#" class="social-icon">
+                                <i class="fab fa-whatsapp"></i>
+                            </a>
+                            <a href="#" class="social-icon">
+                                <i class="fab fa-instagram"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="contact-form-container">
+                    <h2>Отправить сообщение</h2>
+                    <p class="form-description">Заполните форму ниже, и мы свяжемся с вами в ближайшее время</p>
+
+                    <form class="contact-form">
+                        <div class="form-group">
+                            <label for="name">Ваше имя *</label>
+                            <input type="text" id="name" name="name" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="email">Email *</label>
+                            <input type="email" id="email" name="email" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="phone">Телефон</label>
+                            <input type="tel" id="phone" name="phone">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="subject">Тема</label>
+                            <select id="subject" name="subject">
+                                <option value="">Выберите тему</option>
+                                <option value="booking">Вопрос о бронировании</option>
+                                <option value="event">Вопрос о мероприятии</option>
+                                <option value="partnership">Сотрудничество</option>
+                                <option value="other">Другое</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="message">Сообщение *</label>
+                            <textarea id="message" name="message" rows="5" required></textarea>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary">Отправить сообщение</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FAQ -->
+    <section class="section faq-section" style="background-color: #f0f4f8;">
+        <div class="container">
+            <h2 class="section-title">Часто задаваемые вопросы</h2>
+            <div class="faq-container">
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <h3>Как вернуть билет?</h3>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <p>Возврат билетов возможен не позднее чем за 3 дня до мероприятия, при условии, что это не нарушает правила возврата, установленные организатором. Для возврата напишите нам на почту info@eventbook.ru с указанием номера заказа.</p>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <h3>Можно ли изменить дату посещения мероприятия?</h3>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <p>Изменение даты возможно при наличии свободных мест на другое время. Свяжитесь с нами по телефону +7 (999) 123-45-67 для решения этого вопроса.</p>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <h3>Как стать организатором мероприятий на вашей платформе?</h3>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <p>Для сотрудничества отправьте запрос на partnership@eventbook.ru с описанием вашего мероприятия и контактными данными.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Футер -->
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>EventBook</h3>
+                    <p>Платформа для поиска и бронирования билетов на мероприятия любого формата. Мы делаем культурную жизнь доступнее.</p>
+                </div>
+                <div class="footer-section">
+                    <h3>Навигация</h3>
+                    <ul>
+                        <li><a href="{% url 'home' %}">Главная</a></li>
+                        <li><a href="{% url 'events' %}">Мероприятия</a></li>
+                        <li><a href="{% url 'contacts' %}">Контакты</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h3>Контакты</h3>
+                    <ul>
+                        <li><i class="fas fa-phone"></i> +7 (999) 123-45-67</li>
+                        <li><i class="fas fa-envelope"></i> info@eventbook.ru</li>
+                        <li><i class="fas fa-map-marker-alt"></i> Москва, ул. Пушкина, д. 10</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="copyright">
+                <p>&copy; 2024 EventBook. Все права защищены.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // JavaScript для FAQ аккордеона
+        document.addEventListener('DOMContentLoaded', function() {
+            const faqQuestions = document.querySelectorAll('.faq-question');
+
+            faqQuestions.forEach(question => {
+                question.addEventListener('click', () => {
+                    const answer = question.nextElementSibling;
+                    const icon = question.querySelector('i');
+
+                    // Закрыть все открытые ответы
+                    document.querySelectorAll('.faq-answer').forEach(item => {
+                        if (item !== answer && item.classList.contains('active')) {
+                            item.classList.remove('active');
+                            item.previousElementSibling.querySelector('i').classList.remove('fa-chevron-up');
+                            item.previousElementSibling.querySelector('i').classList.add('fa-chevron-down');
+                        }
+                    });
+
+                    // Переключить текущий ответ
+                    answer.classList.toggle('active');
+
+                    if (answer.classList.contains('active')) {
+                        icon.classList.remove('fa-chevron-down');
+                        icon.classList.add('fa-chevron-up');
+                    } else {
+                        icon.classList.remove('fa-chevron-up');
+                        icon.classList.add('fa-chevron-down');
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>

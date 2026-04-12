@@ -1,0 +1,112 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Регистрация | EventBook</title>
+    <link rel="stylesheet" href="{% static 'main/css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'main/css/register.css' %}">
+</head>
+<body>
+
+<header>
+    <div class="container">
+        <nav>
+            <a href="{% url 'home' %}" class="logo">Event<span>Book</span></a>
+            <ul class="nav-links">
+                <li><a href="{% url 'home' %}">Главная</a></li>
+                <li><a href="{% url 'events' %}">Мероприятия</a></li>
+                <li><a href="{% url 'contacts' %}">Контакты</a></li>
+                {% if user.is_authenticated %}
+                    <li>
+                        <form action="{% url 'logout' %}" method="post" style="display: inline;">
+                            {% csrf_token %}
+                            <button type="submit" class="btn">Выйти</button>
+                        </form>
+                    </li>
+                {% else %}
+                    <li><a href="{% url 'login' %}" class="btn">Войти</a></li>
+                {% endif %}
+            </ul>
+        </nav>
+    </div>
+</header>
+
+<section class="hero" style="padding: 2rem 0; margin-bottom: 2rem;">
+    <div class="container">
+        <h1>Регистрация</h1>
+        <p>Создайте аккаунт, чтобы бронировать билеты и быть в курсе событий</p>
+    </div>
+</section>
+
+<div class="container section" style="padding-top: 0;">
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <div class="register-form">
+        <form method="post">
+            {% csrf_token %}
+
+            {% for field in form %}
+                <div class="form-group">
+                    <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                    {{ field }}
+                    {% if field.errors %}
+                        <ul class="errorlist">
+                            {% for error in field.errors %}
+                                <li>{{ error }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+                    {% if field.help_text %}
+                        <div class="help-text">{{ field.help_text|safe }}</div>
+                    {% endif %}
+                </div>
+            {% endfor %}
+
+            <button type="submit" class="btn btn-block">Зарегистрироваться</button>
+
+            <div class="register-footer">
+                Уже есть аккаунт? <a href="{% url 'login' %}">Войдите</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<footer>
+    <div class="container">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>EventBook</h3>
+                <p>Платформа для поиска и бронирования мероприятий.</p>
+            </div>
+            <div class="footer-section">
+                <h3>Быстрые ссылки</h3>
+                <ul>
+                    <li><a href="{% url 'home' %}">Главная</a></li>
+                    <li><a href="{% url 'events' %}">Мероприятия</a></li>
+                    <li><a href="{% url 'contacts' %}">Контакты</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h3>Контакты</h3>
+                <ul>
+                    <li>Email: info@eventbook.ru</li>
+                    <li>Телефон: +7 (123) 456-78-90</li>
+                </ul>
+            </div>
+        </div>
+        <div class="copyright">
+            &copy; 2025 EventBook. Все права защищены.
+        </div>
+    </div>
+</footer>
+
+</body>
+</html>
