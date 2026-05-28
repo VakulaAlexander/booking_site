@@ -1,0 +1,67 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Создание мероприятия | EventBook</title>
+    <link rel="stylesheet" href="{% static 'main/css/style.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .event-form-container {
+            max-width: 800px;
+            margin: 2rem auto;
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+        }
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        .form-group label {
+            font-weight: 600;
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            padding: 0.7rem;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+        }
+        .btn-submit {
+            background-color: var(--success-color);
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <header>...</header> <!-- скопируйте навигацию из events.html -->
+    <div class="container">
+        <div class="event-form-container">
+            <h2>Создать мероприятие</h2>
+            <p>Заполните форму. После проверки администратором мероприятие появится на сайте.</p>
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                {% for field in form %}
+                    <div class="form-group">
+                        {{ field.label_tag }}
+                        {{ field }}
+                        {% if field.help_text %}
+                            <small style="color: #6c757d;">{{ field.help_text }}</small>
+                        {% endif %}
+                        {% for error in field.errors %}
+                            <div style="color: red;">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                {% endfor %}
+                <div style="display: flex; gap: 1rem;">
+                    <button type="submit" class="btn btn-submit">Отправить на модерацию</button>
+                    <a href="{% url 'events' %}" class="btn">Отмена</a>
+                </div>
+            </form>
+        </div>
+    </div>
+    <footer>...</footer>
+</body>
+</html>

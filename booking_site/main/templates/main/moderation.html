@@ -1,0 +1,169 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Модерация мероприятий</title>
+    <link rel="stylesheet" href="{% static 'main/css/style.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .moderation-container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+        .event-card.moderation {
+            display: flex;
+            flex-direction: column;
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .event-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 0.5rem;
+            margin-bottom: 1rem;
+        }git
+        .event-title {
+            font-size: 1.4rem;
+            font-weight: bold;
+            color: var(--dark-color);
+        }
+        .event-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 0.8rem;
+            margin: 1rem 0;
+        }
+        .detail-item {
+            display: flex;
+            gap: 0.5rem;
+            color: #555;
+        }
+        .detail-item i {
+            width: 20px;
+            color: var(--primary-color);
+        }
+        .event-actions {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .btn-sm {
+            padding: 0.5rem 1rem;
+            font-size: 0.9rem;
+        }
+        .btn-document {
+            background-color: #6c757d;
+        }
+        .btn-document:hover {
+            background-color: #5a6268;
+        }
+        .btn-approve {
+            background-color: var(--success-color);
+        }
+        .btn-reject {
+            background-color: var(--danger-color);
+        }
+        .document-link {
+            word-break: break-all;
+        }
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            background: white;
+            border-radius: 12px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <nav>
+                <a href="{% url 'home' %}" class="logo">Event<span>Book</span></a>
+                <ul class="nav-links">
+                    <li><a href="{% url 'home' %}">Главная</a></li>
+                    <li><a href="{% url 'events' %}">Мероприятия</a></li>
+                    <li><a href="{% url 'contacts' %}">Контакты</a></li>
+                    {% if user.is_authenticated %}
+                        <li><a href="{% url 'profile' %}">Профиль</a></li>
+                        <li>
+                            <form action="{% url 'logout' %}" method="post" style="display: inline;">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-sm">Выйти</button>
+                            </form>
+                        </li>
+                    {% else %}
+                        <li><a href="{% url 'login' %}" class="btn">Войти</a></li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <div class="moderation-container">
+        <h1>Панель модерации мероприятий</h1>
+        <p>Мероприятия, ожидающие проверки</p>
+
+        {% if events %}
+            {% for ev in events %}
+            <div class="event-card moderation">
+                <div class="event-header">
+                    <span class="event-title">{{ ev.eventName }}</span>
+                    <span class="event-category">{{ ev.type.type }}</span>
+                </div>
+                <div class="event-details">
+                    <div class="detail-item"><i class="fas fa-user"></i> Организатор: {{ ev.organisator.idOrganisator.get_full_name }}</div>
+                    <div class="detail-item"><i class="fas fa-calendar"></i> Дата: {{ ev.event_date }} {% if ev.event_start %}в {{ ev.event_start }}{% endif %}</div>
+                    <div class="detail-item"><i class="fas fa-map-marker-alt"></i> {{ ev.city.cityName|default:"Город не указан" }}, {{ ev.adress.street|default:"" }} {{ ev.adress.home|default:"" }}</div>
+                    <div class="detail-item"><i class="fas fa-users"></i> Участников: {{ ev.participants }}</div>
+                    <div class="detail-item"><i class="fas fa-ruble-sign"></i> Цена: {{ ev.price }} ₽</div>
+                    <div class="detail-item"><i class="fas fa-info-circle"></i> {{ ev.info|truncatechars:100 }}</div>
+                </div>
+                <div class="event-actions">
+                    {% if ev.document %}
+                        <a href="{{ ev.document.url }}" class="btn btn-sm btn-document" target="_blank">
+                            <i class="fas fa-file-alt"></i> Просмотреть документы
+                        </a>
+                    {% else %}
+                        <span class="btn btn-sm btn-document" style="background-color: #e9ecef; color: #6c757d; cursor: default;">
+                            <i class="fas fa-ban"></i> Документы отсутствуют
+                        </span>
+                    {% endif %}
+                    <a href="{% url 'approve_event' ev.id %}" class="btn btn-sm btn-approve" onclick="return confirm('Одобрить мероприятие «{{ ev.eventName }}»?');">
+                        <i class="fas fa-check"></i> Одобрить
+                    </a>
+                    <a href="{% url 'reject_event' ev.id %}" class="btn btn-sm btn-reject">
+                        <i class="fas fa-times"></i> Отклонить
+                    </a>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="empty-state">
+                <i class="fas fa-check-circle" style="font-size: 3rem; color: var(--success-color);"></i>
+                <h3>Нет мероприятий на модерации</h3>
+                <p>Все мероприятия проверены или ещё не созданы.</p>
+            </div>
+        {% endif %}
+    </div>
+
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section"><h3>EventBook</h3><p>Платформа для поиска и бронирования билетов</p></div>
+                <div class="footer-section"><h3>Навигация</h3><ul><li><a href="{% url 'home' %}">Главная</a></li><li><a href="{% url 'events' %}">Мероприятия</a></li><li><a href="{% url 'contacts' %}">Контакты</a></li></ul></div>
+                <div class="footer-section"><h3>Контакты</h3><ul><li><i class="fas fa-phone"></i> +7 (999) 123-45-67</li><li><i class="fas fa-envelope"></i> info@eventbook.ru</li></ul></div>
+            </div>
+            <div class="copyright"><p>&copy; 2024 EventBook. Все права защищены.</p></div>
+        </div>
+    </footer>
+</body>
+</html>

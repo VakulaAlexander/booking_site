@@ -1,0 +1,71 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Отклонение мероприятия</title>
+    <link rel="stylesheet" href="{% static 'main/css/style.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .reject-container {
+            max-width: 600px;
+            margin: 3rem auto;
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        label {
+            font-weight: 600;
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+        textarea {
+            width: 100%;
+            padding: 0.7rem;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-family: inherit;
+        }
+        .btn-group {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        .event-info {
+            background: #f8f9fa;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="reject-container">
+        <h2><i class="fas fa-times-circle" style="color: var(--danger-color);"></i> Отклонение мероприятия</h2>
+        <div class="event-info">
+            <strong>{{ event.eventName }}</strong><br>
+            Организатор: {{ event.organisator.idOrganisator.get_full_name }}<br>
+            Дата: {{ event.event_date }}
+        </div>
+        <form method="post">
+            {% csrf_token %}
+            <div class="form-group">
+                {{ form.comment.label_tag }}
+                {{ form.comment }}
+                {% if form.comment.errors %}
+                    <div class="error">{{ form.comment.errors }}</div>
+                {% endif %}
+                <small>Этот комментарий увидят организаторы (после доработки функционала).</small>
+            </div>
+            <div class="btn-group">
+                <button type="submit" class="btn" style="background-color: var(--danger-color);">Подтвердить отклонение</button>
+                <a href="{% url 'moderation_panel' %}" class="btn" style="background-color: #6c757d;">Назад</a>
+            </div>
+        </form>
+    </div>
+</body>
+</html>

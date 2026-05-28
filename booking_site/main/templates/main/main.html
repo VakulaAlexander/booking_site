@@ -18,7 +18,9 @@
                     <li><a href="{% url 'home' %}" class="active">Главная</a></li>
                     <li><a href="{% url 'events' %}">Мероприятия</a></li>
                     <li><a href="{% url 'contacts' %}">Контакты</a></li>
-
+                    {% if user.is_authenticated and user.is_staff %}
+                        <li><a href="{% url 'moderation_panel' %}">Модерация</a></li>
+                    {% endif %}
                     {% if user.is_authenticated %}
                         <li><a href="{% url 'profile' %}">Профиль</a></li>
                         <li>
@@ -30,6 +32,7 @@
                     {% else %}
                         <li><a href="{% url 'login' %}" class="btn">Войти</a></li>
                     {% endif %}
+
                 </ul>
             </nav>
         </div>

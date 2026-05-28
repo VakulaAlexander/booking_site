@@ -19,6 +19,9 @@
                 <li><a href="{% url 'home' %}">Главная</a></li>
                 <li><a href="{% url 'events' %}">Мероприятия</a></li>
                 <li><a href="{% url 'contacts' %}">Контакты</a></li>
+                {% if user.is_authenticated and user.is_staff %}
+                    <li><a href="{% url 'moderation_panel' %}">Модерация</a></li>
+                {% endif %}
                 {% if user.is_authenticated %}
                     <li><a href="{% url 'profile' %}" class="active">Профиль</a></li>
                     <li>
@@ -30,6 +33,7 @@
                 {% else %}
                     <li><a href="{% url 'login' %}" class="btn">Войти</a></li>
                 {% endif %}
+
             </ul>
         </nav>
     </div>
@@ -52,6 +56,7 @@
     {% endif %}
 
     <div class="profile-container">
+        <!-- Карточка с личными данными -->
         <div class="profile-card">
             <div class="profile-header">
                 <i class="fas fa-user-circle"></i>
@@ -100,8 +105,105 @@
                 <div class="profile-actions">
                     <button type="submit" class="btn btn-primary">Сохранить изменения</button>
                     <a href="{% url 'home' %}" class="btn">На главную</a>
+
+                    {% if not is_organizer %}
+                        <button type="button" id="showOrganizerBtn" class="btn" style="background-color: #28a745;">Стать организатором</button>
+                    {% endif %}
                 </div>
             </form>
+
+            <!-- Скрытая форма для становления организатором -->
+            {% if not is_organizer %}
+            <div id="organizerFormContainer" style="display: none; margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid #eee;">
+                <h3>Стать организатором</h3>
+                <form method="post" action="{% url 'become_organizer' %}">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <label for="phone_num">Контактный телефон *</label>
+                        <input type="text" name="phone_num" id="phone_num" class="form-control" required placeholder="+7 (999) 123-45-67">
+                    </div>
+                    <div class="form-group">
+                        <label for="info">Информация об организаторе *</label>
+                        <textarea name="info" id="info" class="form-control" rows="4" required placeholder="Расскажите о себе как об организаторе..."></textarea>
+                    </div>
+                    <div class="profile-actions" style="margin-top: 1rem;">
+                        <button type="submit" class="btn btn-primary">Отправить заявку</button>
+                        <button type="button" id="cancelOrganizerBtn" class="btn">Отмена</button>
+                    </div>
+                </form>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Блок с мероприятиями, на которые пользователь записан -->
+        <div class="profile-card" style="margin-top: 2rem;">
+            <div class="profile-header">
+                <i class="fas fa-ticket-alt"></i>
+                <h2>Мои мероприятия</h2>
+            </div>
+
+            {% if registrations %}
+                <div class="events-grid">
+                    {% for reg in registrations %}
+                        <div class="event-card">
+                            {% if reg.event.image %}
+                                <img src="{{ reg.event.image.url }}" alt="{{ reg.event.eventName }}" class="event-image">
+                            {% endif %}
+                            <div class="event-content">
+                                <span class="event-category">{{ reg.event.ageRestrictions.restriction }}</span>
+                                <h3 class="event-title">{{ reg.event.eventName }}</h3>
+                                <div class="event-date">
+                                    <i class="far fa-calendar"></i>
+                                    <span>{{ reg.event.event_date }} {% if reg.event.event_start %}{{ reg.event.event_start }}{% endif %}</span>
+                                </div>
+                                <div class="event-location">
+                                    <i class="fas fa-map-marker-alt"></i>
+                                    <span>
+                                        {% if reg.event.city %}{{ reg.event.city.cityName }}{% endif %}
+                                        {% if reg.event.adress.street %}, {{ reg.event.adress.street }}{% endif %}
+                                        {% if reg.event.adress.home %}, д. {{ reg.event.adress.home }}{% endif %}
+                                    </span>
+                                </div>
+                                <div class="event-organizer">
+                                    <i class="fas fa-user"></i>
+                                    <span>Организатор: {{ reg.event.organisator.idOrganisator.get_full_name }}</span>
+                                </div>
+                                <div class="event-organizer">
+                                    <span>{{ reg.event.type }} мероприятие</span>
+                                </div>
+                                <div class="event-price">
+                                    {% if reg.event.price > 0 %}
+                                        {{ reg.event.price }} ₽
+                                    {% else %}
+                                        Бесплатно
+                                    {% endif %}
+                                </div>
+                                <div style="margin: 0.5rem 0; font-size: 0.85rem; color: #666;">
+                                    <i class="fas fa-clock"></i> Зарегистрирован: {{ reg.registration_date|date:"d.m.Y H:i" }}
+                                </div>
+                                {% if reg.event.price > 0 %}
+                                    <div style="margin: 0.5rem 0; font-size: 0.85rem;">
+                                        {% if reg.is_paid %}
+                                            <span style="color: var(--success-color);"><i class="fas fa-check-circle"></i> Оплачено</span>
+                                        {% else %}
+                                            <span style="color: var(--warning-color);"><i class="fas fa-hourglass-half"></i> Не оплачено</span>
+                                        {% endif %}
+                                    </div>
+                                {% endif %}
+                                <div class="event-actions">
+                                    <a href="#" class="btn" style="background-color: var(--danger-color);" onclick="return confirm('Отменить запись?')">Отменить</a>
+                                    <span class="event-seats">Статус: активна</span>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p style="text-align: center; color: #6c757d;">Вы пока не зарегистрированы ни на одно мероприятие.</p>
+                <div style="text-align: center; margin-top: 1rem;">
+                    <a href="{% url 'events' %}" class="btn btn-primary">Перейти к мероприятиям</a>
+                </div>
+            {% endif %}
         </div>
     </div>
 </div>
@@ -135,6 +237,8 @@
         </div>
     </div>
 </footer>
+
+<script src="{% static 'main/js/profile.js' %}"></script>
 
 </body>
 </html>

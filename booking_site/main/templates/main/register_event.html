@@ -1,0 +1,131 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Регистрация на {{ event.eventName }} - EventBook</title>
+    <link rel="stylesheet" href="{% static 'main/css/style.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <nav>
+                <a href="{% url 'home' %}" class="logo">Event<span>Book</span></a>
+                <ul class="nav-links">
+                    <li><a href="{% url 'home' %}">Главная</a></li>
+                    <li><a href="{% url 'events' %}" class="active">Мероприятия</a></li>
+                    <li><a href="{% url 'contacts' %}">Контакты</a></li>
+                    {% if user.is_authenticated %}
+                        <li><a href="{% url 'profile' %}">Профиль</a></li>
+                        <li>
+                            <form action="{% url 'logout' %}" method="post" style="display: inline;">
+                                {% csrf_token %}
+                                <button type="submit" class="btn">Выйти</button>
+                            </form>
+                        </li>
+                    {% else %}
+                        <li><a href="{% url 'login' %}" class="btn">Войти</a></li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <section class="hero" style="padding: 2rem 0;">
+        <div class="container">
+            <h1>Регистрация на мероприятие</h1>
+            <p>{{ event.eventName }}</p>
+        </div>
+    </section>
+
+    <section class="section">
+        <div class="container">
+            <div class="event-card" style="max-width: 600px; margin: 0 auto;">
+                <div class="event-content">
+                    <h3>{{ event.eventName }}</h3>
+                    <p><strong>Дата:</strong> {{ event.event_date }} {% if event.event_start %}{{ event.event_start }}{% endif %}</p>
+                    <p><strong>Место:</strong>
+                        {% if event.city %}{{ event.city.cityName }}{% endif %}
+                        {% if event.adress.street %}, {{ event.adress.street }}{% endif %}
+                        {% if event.adress.home %}, д. {{ event.adress.home }}{% endif %}
+                    </p>
+                    <p><strong>Цена:</strong> {{ event.price }} ₽</p>
+                    <p><strong>Осталось мест:</strong> {{ free_slots }}</p>
+
+                    <form method="post" style="margin-top: 2rem;">
+                        {% csrf_token %}
+
+                        {% if show_card_form %}
+                            <div class="form-group" style="margin-bottom: 1rem;">
+                                <label for="{{ form.card_number.id_for_label }}">{{ form.card_number.label }}</label>
+                                {{ form.card_number }}
+                                {% if form.card_number.errors %}
+                                    <div class="error">{{ form.card_number.errors }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="form-group" style="margin-bottom: 1rem;">
+                                <label for="{{ form.card_expiry.id_for_label }}">{{ form.card_expiry.label }}</label>
+                                {{ form.card_expiry }}
+                                {% if form.card_expiry.errors %}
+                                    <div class="error">{{ form.card_expiry.errors }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="form-group" style="margin-bottom: 1rem;">
+                                <label for="{{ form.card_cvv.id_for_label }}">{{ form.card_cvv.label }}</label>
+                                {{ form.card_cvv }}
+                                {% if form.card_cvv.errors %}
+                                    <div class="error">{{ form.card_cvv.errors }}</div>
+                                {% endif %}
+                            </div>
+                            <small style="display: block; margin-bottom: 1rem; color: #6c757d;">
+                                * Данные карты никуда не отправляются и не сохраняются.
+                            </small>
+                        {% endif %}
+
+                        {% if form.non_field_errors %}
+                            <div class="error">{{ form.non_field_errors }}</div>
+                        {% endif %}
+
+                        <div class="event-actions" style="justify-content: space-between;">
+                            <a href="{% url 'events' %}" class="btn" style="background-color: #6c757d;">Отмена</a>
+                            <button type="submit" class="btn btn-primary">Подтвердить регистрацию</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>EventBook</h3>
+                    <p>Платформа для поиска и бронирования билетов на мероприятия любого формата. Мы делаем культурную жизнь доступнее.</p>
+                </div>
+                <div class="footer-section">
+                    <h3>Навигация</h3>
+                    <ul>
+                        <li><a href="{% url 'home' %}">Главная</a></li>
+                        <li><a href="{% url 'events' %}">Мероприятия</a></li>
+                        <li><a href="{% url 'contacts' %}">Контакты</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h3>Контакты</h3>
+                    <ul>
+                        <li><i class="fas fa-phone"></i> +7 (999) 123-45-67</li>
+                        <li><i class="fas fa-envelope"></i> info@eventbook.ru</li>
+                        <li><i class="fas fa-map-marker-alt"></i> Москва, ул. Пушкина, д. 10</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="copyright">
+                <p>&copy; 2024 EventBook. Все права защищены.</p>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>

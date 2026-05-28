@@ -18,6 +18,9 @@
                     <li><a href="{% url 'home' %}">Главная</a></li>
                     <li><a href="{% url 'events' %}" class="active">Мероприятия</a></li>
                     <li><a href="{% url 'contacts' %}">Контакты</a></li>
+                    {% if user.is_authenticated and user.is_staff %}
+                        <li><a href="{% url 'moderation_panel' %}">Модерация</a></li>
+                    {% endif %}
                     {% if user.is_authenticated %}
                         <li><a href="{% url 'profile' %}">Профиль</a></li>
                         <li>
@@ -29,6 +32,7 @@
                     {% else %}
                         <li><a href="{% url 'login' %}" class="btn">Войти</a></li>
                     {% endif %}
+
                 </ul>
             </nav>
         </div>
@@ -72,11 +76,24 @@
                         {% endfor %}
                     </select>
 
-                    <!-- Кнопка применения фильтра -->
+                    <!-- Выпадающий список для типов мероприятий -->
+                    <select name="type" style="padding: 0.7rem 1rem; border-radius: 6px; border: 1px solid #ddd;">
+                        <option value="">Все типы</option>
+                        {% for type in filter.form.type.field.queryset %}
+                            <option value="{{ type.pk }}" {% if filter.form.type.value|stringformat:"s" == type.pk|stringformat:"s" %}selected{% endif %}>
+                                {{ type.type }}
+                            </option>
+                        {% endfor %}
+                    </select>
+
+                    <!-- Кнопки -->
                     <button type="submit" class="btn" style="background-color: var(--primary-color); color: white;">Применить</button>
 
-                    <!-- Ссылка для сброса фильтра -->
                     <a href="{% url 'events' %}" class="btn" style="background-color: #e9ecef; color: #495057;">Сбросить</a>
+
+                    {% if is_organizer %}
+                        <a href="{% url 'create_event' %}" class="btn" style="background-color: #28a745;">Создать мероприятие</a>
+                    {% endif %}
                 </div>
             </div>
         </form>
@@ -111,10 +128,20 @@
                             <i class="fas fa-user"></i>
                             <span>Организатор: {{ event.organisator.idOrganisator.get_full_name }}</span>
                         </div>
+                        <div class="event-organizer">
+                            <span>{{ event.type }} мероприятие</span>
+                        </div>
+                        <div class="event-organizer">
+                            <span>Дополнительная информация: {{ event.info }}</span>
+                        </div>
                         <div class="event-price">{{ event.price }} ₽</div>
                         <div class="event-actions">
-                            <a href="#" class="btn">Забронировать</a>
-                            <span class="event-seats">Осталось {{ event.participants }} мест</span>
+                            {% if user.is_authenticated %}
+                                <a href="{% url 'register_event' event.id %}" class="btn">Забронировать</a>
+                            {% else %}
+                                <a href="{% url 'login' %}" class="btn">Войдите, чтобы забронировать</a>
+                            {% endif %}
+                            <span class="event-seats">Осталось {{ event.free_slots }} мест</span>
                         </div>
                     </div>
                 </div>
